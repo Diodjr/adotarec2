@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../screens/login_screen.dart';
 import '../screens/pet_list_screen.dart';
 
 class AppMenuDrawer extends StatelessWidget {
@@ -81,7 +82,15 @@ class AppMenuDrawer extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => const LoginScreen(),
+                      ),
+                    );
+                  },
                   style: _actionButtonStyle(backgroundColor: _blue),
                   child: const Text('Entrar'),
                 ),

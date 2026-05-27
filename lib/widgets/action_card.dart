@@ -5,10 +5,12 @@ class ActionCard extends StatelessWidget {
     super.key,
     required this.title,
     required this.description,
+    this.onAccessPressed,
   });
 
   final String title;
   final String description;
+  final VoidCallback? onAccessPressed;
 
   static const _orange = Color(0xFFFF751F);
   static const _blue = Color(0xFF006DA6);
@@ -50,7 +52,7 @@ class ActionCard extends StatelessWidget {
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
-                onPressed: () {},
+                onPressed: onAccessPressed,
                 style: TextButton.styleFrom(
                   backgroundColor: _orange,
                   foregroundColor: Colors.white,
