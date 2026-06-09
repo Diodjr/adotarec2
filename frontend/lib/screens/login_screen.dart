@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 //import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adotarec/widgets/app_menu_drawer.dart';
 
+import 'forgot_password_screen.dart';
 import 'register_screen.dart';
 import '../widgets/custom_app_bar.dart';
 
@@ -146,7 +147,28 @@ class _LoginScreenState extends State<LoginScreen> {
                       )
                     : const Text('Entrar'),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => const ForgotPasswordScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    'Esqueci minha senha',
+                    style: TextStyle(
+                      fontFamily: 'Nunito',
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF006DA6),
+                    ),
+                  ),
+                ),
+              ),
               TextButton(
                 onPressed: () {
                   Navigator.push(
