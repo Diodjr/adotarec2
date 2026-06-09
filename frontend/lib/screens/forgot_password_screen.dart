@@ -35,6 +35,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       return;
     }
 
+    // A API atual não possui endpoint de recuperação de senha.
+    // O fluxo abaixo é apenas simulação visual (mock).
+  // await AuthService().requestPasswordReset(email: email);
+
     setState(() => _isSending = true);
     await Future<void>.delayed(const Duration(seconds: 1));
     if (!mounted) return;

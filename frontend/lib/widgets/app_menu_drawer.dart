@@ -78,6 +78,15 @@ class AppMenuDrawer extends StatelessWidget {
                 style: _navButtonStyle(context),
                 child: const Text('Pets'),
               ),
+              const SizedBox(height: 20),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, '/add-pet');
+                },
+                style: _navButtonStyle(context),
+                child: const Text('Adicionar Pet'),
+              ),
               const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,

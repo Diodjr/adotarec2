@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/pet.dart';
-import '../services/api_service.dart';
+import '../services/pet_service.dart';
 import '../widgets/app_menu_drawer.dart';
 import '../widgets/custom_app_bar.dart';
 
@@ -14,31 +13,37 @@ class AddPetScreen extends StatefulWidget {
 
 class _AddPetScreenState extends State<AddPetScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _petService = PetService();
   bool _isSaving = false;
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _breedController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
-  final TextEditingController _vaccinatedController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _aboutController = TextEditingController();
   final TextEditingController _imageUrlController = TextEditingController();
+  final TextEditingController _whatsappController = TextEditingController();
 
-  String _sex = 'Macho';
+  String _especie = 'CACHORRO';
+  String _sex = 'MACHO';
+  String _porte = 'MEDIO';
   String _neutered = 'Sim';
+  String _vaccinated = 'Sim';
 
-  static const _sexOptions = <String>['Macho', 'Fêmea'];
-  static const _neuteredOptions = <String>['Sim', 'Não'];
+  static const _especieOptions = <String>['CACHORRO', 'GATO'];
+  static const _sexOptions = <String>['MACHO', 'FEMEA'];
+  static const _porteOptions = <String>['PEQUENO', 'MEDIO', 'GRANDE'];
+  static const _yesNoOptions = <String>['Sim', 'Não'];
 
   @override
   void dispose() {
     _nameController.dispose();
     _breedController.dispose();
     _ageController.dispose();
-    _vaccinatedController.dispose();
     _locationController.dispose();
     _aboutController.dispose();
     _imageUrlController.dispose();
+    _whatsappController.dispose();
     super.dispose();
   }
 
@@ -46,37 +51,54 @@ class _AddPetScreenState extends State<AddPetScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSaving = true);
-    final pet = Pet(
-      name: _nameController.text.trim(),
-      sex: _sex,
-      breed: _breedController.text.trim(),
-      age: _ageController.text.trim(),
-      neutered: _neutered,
-      vaccinated: _vaccinatedController.text.trim(),
-      location: _locationController.text.trim(),
-      about: _aboutController.text.trim(),
-      imageUrls: <String>[
-        if (_imageUrlController.text.trim().isNotEmpty)
-          _imageUrlController.text.trim()
-        else
-          'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=1200&q=80',
-      ],
-    );
 
-    await ApiService.addPet(pet);
-    if (!mounted) return;
-    setState(() => _isSaving = false);
+    final nome = _nameController.text.trim();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '${pet.name} cadastrado com sucesso!',
-          style: const TextStyle(fontFamily: 'Nunito'),
+    try {
+      await _petService.createPet(
+        nome: nome,
+        especie: _especie,
+        raca: _breedController.text.trim(),
+        idade: _ageController.text.trim(),
+        sexo: _sex,
+        porte: _porte,
+        castrado: _neutered == 'Sim',
+        vacinado: _vaccinated == 'Sim',
+        localizacao: _locationController.text.trim(),
+        descricao: _aboutController.text.trim(),
+        imagemUrl: _imageUrlController.text.trim().isNotEmpty
+            ? _imageUrlController.text.trim()
+            : 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=1200&q=80',
+        whatsapp: _whatsappController.text.trim(),
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '$nome cadastrado com sucesso!',
+            style: const TextStyle(fontFamily: 'Nunito'),
+          ),
+          backgroundColor: const Color(0xFF006DA6),
         ),
-        backgroundColor: const Color(0xFF006DA6),
-      ),
-    );
-    Navigator.popUntil(context, (route) => route.isFirst);
+      );
+      Navigator.popUntil(context, (route) => route.isFirst);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.toString(),
+            style: const TextStyle(fontFamily: 'Nunito'),
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
   }
 
   @override
@@ -129,6 +151,13 @@ class _AddPetScreenState extends State<AddPetScreen> {
                 ),
                 const SizedBox(height: 12),
                 _buildDropdown(
+                  label: 'Espécie',
+                  value: _especie,
+                  items: _especieOptions,
+                  onChanged: (value) => setState(() => _especie = value!),
+                ),
+                const SizedBox(height: 12),
+                _buildDropdown(
                   label: 'Sexo',
                   value: _sex,
                   items: _sexOptions,
@@ -165,25 +194,24 @@ class _AddPetScreenState extends State<AddPetScreen> {
                 ),
                 const SizedBox(height: 12),
                 _buildDropdown(
+                  label: 'Porte',
+                  value: _porte,
+                  items: _porteOptions,
+                  onChanged: (value) => setState(() => _porte = value!),
+                ),
+                const SizedBox(height: 12),
+                _buildDropdown(
                   label: 'Castrado',
                   value: _neutered,
-                  items: _neuteredOptions,
+                  items: _yesNoOptions,
                   onChanged: (value) => setState(() => _neutered = value!),
                 ),
                 const SizedBox(height: 12),
-                TextFormField(
-                  controller: _vaccinatedController,
-                  decoration: const InputDecoration(
-                    labelText: 'Vacinado',
-                    border: OutlineInputBorder(),
-                    hintText: 'Ex.: Sim (V10 e antirrábica)',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Informe o status de vacinação';
-                    }
-                    return null;
-                  },
+                _buildDropdown(
+                  label: 'Vacinado',
+                  value: _vaccinated,
+                  items: _yesNoOptions,
+                  onChanged: (value) => setState(() => _vaccinated = value!),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -213,6 +241,23 @@ class _AddPetScreenState extends State<AddPetScreen> {
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Descreva o pet';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _whatsappController,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(
+                    labelText: 'WhatsApp para contato',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.phone_outlined),
+                    hintText: 'Ex.: 5581999999999',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Informe o WhatsApp';
                     }
                     return null;
                   },
